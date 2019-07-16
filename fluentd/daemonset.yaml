@@ -49,8 +49,6 @@ metadata:
 spec:
   template:
     metadata:
-      annotations:
-        iam.amazonaws.com/role: us-east-1a.staging.kubernetes.ruist.io-service-role
       labels:
         k8s-app: fluentd-logging
         version: v1
@@ -63,12 +61,14 @@ spec:
         effect: NoSchedule
       containers:
       - name: fluentd
-        image: fluent/fluentd-kubernetes-daemonset:v1.4-debian-cloudwatch-1
+        image: fluent/fluentd-kubernetes-daemonset:v1.4-debian-s3
         env:
-          - name: LOG_GROUP_NAME
-            value: "k8s"
+          - name: S3_BUCKET_NAME
+            value: "ffl-logs-staging"
           - name: AWS_REGION
-            value: "us-east-1"
+            value: "ap-northeast-1"
+          - name: S3_BUCKET_REGION
+            value: "ap-northeast-1"
         resources:
           limits:
             memory: 200Mi
