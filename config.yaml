@@ -14,7 +14,11 @@ data:
         Path              /var/log/containers/*.log
         Parser            docker
         DB                /var/log/flb_kube.db
+        Docker_Mode       On
         Mem_Buf_Limit     5MB
+        Buffer_Chunk_Size 1MB
+        Chunk_Size        32k
+        Buffer_Max_Size   1MB
         Skip_Long_Lines   On
         Refresh_Interval  10
     [FILTER]
@@ -25,7 +29,7 @@ data:
         Kube_Token_File  /var/run/secrets/kubernetes.io/serviceaccount/token
         Kube_Tag_Prefix  kube.var.log.containers.
         Merge_Log        On
-        Merge_Log_Key    log_processed
+        Merge_Log_Key    log_test
     [OUTPUT]
         Name firehose
         Match **
