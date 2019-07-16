@@ -1,0 +1,38 @@
+PUT _template/test
+{
+  "order" : 0,
+  "index_patterns" : [
+    "log-test-*"
+  ],
+  "settings" : { },
+  "mappings" : {
+    "_default_" : {
+      "dynamic_templates" : [
+        {
+          "force_string" : {
+            "path_match":   "log_test.*",
+            "mapping" : {
+              "type" : "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aliases" : { }
+}
+
+
+DELETE /log-test-2019-07-13
+
+PUT _template/test
+{
+  "order": 0,
+  "index_patterns": [
+    "log-test-*"
+  ],
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "aliases": {}
+}
