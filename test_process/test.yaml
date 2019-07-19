@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: testlog
-        image: 566780295057.dkr.ecr.ap-northeast-1.amazonaws.com/akawamura/test:latest
+        # image: 566780295057.dkr.ecr.ap-northeast-1.amazonaws.com/akawamura/test:latest
+        image: busybox
         command: ["/bin/sh"]
-        # args: ["-c", "while true; do /go/app/say-alphabet -bytes 548576; echo ;echo hello;sleep 10;done"]
-        args: ["-c", "while true; do /go/app/say-alphabet -bytes 1048576; echo ;echo hello;sleep 10;done"]
+        args: ["-c", "while true; do echo hello;sleep 10;done"]
+        # args: ["-c", "while true; do /go/app/say-alphabet -bytes 1048576; echo ;echo hello;sleep 10;done"]

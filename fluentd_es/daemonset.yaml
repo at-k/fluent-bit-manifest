@@ -69,6 +69,8 @@ spec:
             value: "443"
           - name: FLUENT_ELASTICSEARCH_SCHEME
             value: "https"
+          - name: FLUENT_ELASTICSEARCH_SED_DISABLE
+            value: "true"
         resources:
           limits:
             memory: 200Mi
@@ -84,11 +86,9 @@ spec:
         - name: kubernetes-conf
           mountPath: /fluentd/etc/kubernetes.conf
           subPath: kubernetes.conf
-          readOnly: true
         - name: fluent-conf
           mountPath: /fluentd/etc/fluent.conf
           subPath: fluent.conf
-          readOnly: true
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
