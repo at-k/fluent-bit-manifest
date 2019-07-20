@@ -12,6 +12,14 @@ data:
     @include kubernetes.conf
     @include conf.d/*.conf
 
+    <source>
+      @type forward
+    </source>
+
+    <match test.**>
+      @type stdout
+    </match>
+
     <match kubernetes.var.log.containers.**fluentd**.log>
       @type null
     </match>

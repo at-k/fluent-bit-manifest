@@ -64,7 +64,7 @@ spec:
         image: fluent/fluentd-kubernetes-daemonset:v1.4-debian-s3
         env:
           - name: S3_BUCKET_NAME
-            value: "ffl-logs-staging"
+            value: "qa-infra"
           - name: AWS_REGION
             value: "ap-northeast-1"
           - name: S3_BUCKET_REGION
@@ -81,6 +81,12 @@ spec:
         - name: varlibdockercontainers
           mountPath: /var/lib/docker/containers
           readOnly: true
+        - name: kubernetes-conf
+          mountPath: /fluentd/etc/kubernetes.conf
+          subPath: kubernetes.conf
+        - name: fluent-conf
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
@@ -89,3 +95,15 @@ spec:
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
+      - name: kubernetes-conf
+        configMap:
+          name: kubernetes-conf
+          items:
+            - key: kubernetes.conf
+              path: kubernetes.conf
+      - name: fluent-conf
+        configMap:
+          name: fluent-conf
+          items:
+            - key: fluent.conf
+              path: fluent.conf
