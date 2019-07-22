@@ -24,13 +24,13 @@ data:
       @type record_transformer
       enable_ruby true
       <record>
-        namespace_container_name ${record["kubernetes"]["namespace_name"]}.${record["kubernetes"]["container_name"]}
+        namespace_container_name ${"#{ENV['S3_ROOT']}"}.${record["kubernetes"]["namespace_name"]}.${record["kubernetes"]["container_name"]}
       </record>
     </filter>
 
     # tag transform
     # original tag: kubernetes.var.log.containers.<pod_name>_<namespace>_<filename>.log
-    # after: kube.<namespce>.<contaienr_name>
+    # after: kube.<s3_top_path>.<namespce>.<contaienr_name>
     <match kubernetes.**>
       @type rewrite_tag_filter
       <rule>
@@ -59,7 +59,7 @@ data:
         s3_region ap-northeast-1
 
         s3_object_key_format %{path}cluster-log-%{index}.%{file_extension}
-        path logs/${tag[1]}/${tag[2]}/%Y/%m/%d/
+        path ${tag[1]}/${tag[2]}/${tag[3]}/%Y/%m/%d/
 
         include_tag_key true
 
