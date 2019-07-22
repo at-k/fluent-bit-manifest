@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fluentd.fullname" . }}
+  labels:
+{{ include "fluentd.labels" . | indent 4 }}
+data:
+  fluent.conf: |
+    @include "#{ENV['FLUENTD_SYSTEMD_CONF'] || 'systemd'}.conf"
+    @include "#{ENV['FLUENTD_PROMETHEUS_CONF'] || 'prometheus'}.conf"
+    @include kubernetes.conf
+    @include conf.d/*.conf
+
+    <source>
+      @type forward
+    </source>
+
+    <match kubernetes.var.log.containers.**fluentd**.log>
+      @type null
+    </match>
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby
+      <record>
+        hoge ${tag_parts[4]}
+        test ${record.dig("kubernetes", "namespace_name")}
+      </record>
+    </filter>
+    <match kubernetes.**>
+      @type stdout
+      include_tag_key true
+
+      <buffer>
+        flush_interval 5s
+      </buffer>
+    </match>
+    <match test.**>
+      @type copy
+      <store>
+        @type stdout
+      </store>
+      <store>
+        @type s3
+        @log_level info
+        s3_bucket "#{ENV['S3_BUCKET_NAME']}"
+        s3_region ap-northeast-1
+
+        s3_object_key_format %{path}cluster-log-%{index}.%{file_extension}
+        path logs/${tag[0]}/${tag[1]}/%Y/%m/%d/
+
+        include_tag_key true
+
+        flush_interval        1m
+        flush_at_shutdown     true
+
+        <inject>
+          time_key time
+          tag_key tag
+          localtime false
+        </inject>
+        <buffer tag,time>
+          @type file
+          path /var/log/fluentd-buffers/s3.buffer
+          timekey 3600
+          timekey_use_utc true
+          chunk_limit_size 256m
+        </buffer>
+        <format>
+          @type json
+        </format>
+      </store>
+    </match>

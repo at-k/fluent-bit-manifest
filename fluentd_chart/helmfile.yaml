@@ -1,0 +1,11 @@
+environments:
+  production:
+  staging:
+  integration:
+
+releases:
+  - name: fluentd
+    namespace: kube-system
+    chart: ./charts/fluentd
+    values:
+      - ./{{ .Environment.Name }}/values.yaml
