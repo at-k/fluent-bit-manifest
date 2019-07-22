@@ -1,7 +1,9 @@
 image:
-  repository: fluent/fluentd-kubernetes-daemonset
-  tag: v1.4-debian-s3
-  pullPolicy: IfNotPresent
+  repository: atkmr/fluentd-s3-es
+  tag: es-test
+  # repository: fluent/fluentd-kubernetes-daemonset
+  # tag: v1.4-debian-s3
+  pullPolicy: Always
 
 resources:
   limits:

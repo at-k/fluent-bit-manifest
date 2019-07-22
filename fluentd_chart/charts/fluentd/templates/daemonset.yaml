@@ -16,13 +16,15 @@ spec:
         app.kubernetes.io/name: {{ include "fluentd.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         kubernetes.io/cluster-service: "true"
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       serviceAccount: {{ include "fluentd.fullname" . }}
       serviceAccountName: {{ include "fluentd.fullname" . }}
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
-      hostNetwork: true
+      # hostNetwork: true
       terminationGracePeriodSeconds: 30
       volumes:
       - name: varlog
@@ -48,6 +50,14 @@ spec:
             value: "ap-northeast-1"
           - name: S3_BUCKET_REGION
             value: "ap-northeast-1"
+          - name:  FLUENT_ELASTICSEARCH_HOST
+            value: "vpc-test-k8s-lkumm37uiiyl6dze5utpjnowee.ap-northeast-1.es.amazonaws.com"
+          - name:  FLUENT_ELASTICSEARCH_PORT
+            value: "443"
+          - name: FLUENT_ELASTICSEARCH_SCHEME
+            value: "https"
+          - name: FLUENT_ELASTICSEARCH_SED_DISABLE
+            value: "true"
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
@@ -59,8 +69,8 @@ spec:
         - name: fluent-conf
           mountPath: /fluentd/etc/fluent.conf
           subPath: fluent.conf
-        ports:
-        - name: fluent-forward
-          containerPort: 24224
-          hostPort: 24224
-          protocol: TCP
+       # ports:
+       # - name: fluent-forward
+       #   containerPort: 24224
+       #   hostPort: 24224
+       #   protocol: TCP
