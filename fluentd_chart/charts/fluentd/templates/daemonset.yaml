@@ -45,19 +45,14 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
           - name: S3_BUCKET_NAME
-            value: "ffl-logs-develop"
-          - name: AWS_REGION
-            value: "ap-northeast-1"
-          - name: S3_BUCKET_REGION
-            value: "ap-northeast-1"
+            # value: "ffl-logs-develop"
+            value: "qa-infra"
           - name:  FLUENT_ELASTICSEARCH_HOST
             value: "vpc-test-k8s-lkumm37uiiyl6dze5utpjnowee.ap-northeast-1.es.amazonaws.com"
           - name:  FLUENT_ELASTICSEARCH_PORT
             value: "443"
           - name: FLUENT_ELASTICSEARCH_SCHEME
             value: "https"
-          - name: FLUENT_ELASTICSEARCH_SED_DISABLE
-            value: "true"
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:

@@ -1,6 +1,6 @@
 image:
   repository: atkmr/fluentd-s3-es
-  tag: es-test
+  tag: latest
   # repository: fluent/fluentd-kubernetes-daemonset
   # tag: v1.4-debian-s3
   pullPolicy: Always
