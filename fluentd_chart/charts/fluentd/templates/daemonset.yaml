@@ -45,7 +45,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         env:
           - name: S3_BUCKET_NAME
-            value: "qa-infra"
+            value: "ffl-logs-develop"
           - name: AWS_REGION
             value: "ap-northeast-1"
           - name: S3_BUCKET_REGION
@@ -69,8 +69,8 @@ spec:
         - name: fluent-conf
           mountPath: /fluentd/etc/fluent.conf
           subPath: fluent.conf
-       # ports:
-       # - name: fluent-forward
-       #   containerPort: 24224
-       #   hostPort: 24224
-       #   protocol: TCP
+        ports:
+        - name: fluent-forward
+          containerPort: 24224
+          hostPort: 24224
+          protocol: TCP
