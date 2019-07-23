@@ -20,14 +20,21 @@ data:
     @include "#{ENV['FLUENTD_PROMETHEUS_CONF'] || 'prometheus'}.conf"
     @include kubernetes.conf
     @include conf.d/*.conf
+    @log_level info
+    <system>
+      <log>
+        format json
+      </log>
+    </system>
 
     <source>
       @type forward
     </source>
 
-    <match kubernetes.var.log.containers.**fluentd**.log>
-      @type null
-    </match>
+    # fluentd log, must be disabled when stdout output is enabled
+    # <match kubernetes.var.log.containers.**fluentd**.log>
+    #   @type null
+    # </match>
 
     <filter kubernetes.**>
       @type concat
