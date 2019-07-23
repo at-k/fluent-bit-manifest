@@ -29,6 +29,12 @@ data:
       @type null
     </match>
 
+    <filter kubernetes.**>
+      @type concat
+      key log
+      multiline_end_regexp /\n$/
+    </filter>
+
     # create temporary metadata for tag
     <filter kubernetes.**>
       @type record_transformer
@@ -75,12 +81,7 @@ data:
         path ${tag[1]}/${tag[2]}/${tag[3]}/
 
         time_slice_format     %Y/%m/%d/%H
-        timezone              +00:00
-
-        include_tag_key true
-
         flush_interval        1m
-        flush_at_shutdown     true
 
         <inject>
           time_key time
@@ -108,7 +109,7 @@ data:
         path "#{ENV['FLUENT_ELASTICSEARCH_PATH']}"
         scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
         ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
-        ssl_version "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERSION'] || 'TLSv1'}"
+        ssl_version "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERSION'] || 'TLSv1_2'}"
         reload_connections "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_CONNECTIONS'] || 'false'}"
         reconnect_on_error "#{ENV['FLUENT_ELASTICSEARCH_RECONNECT_ON_ERROR'] || 'true'}"
         reload_on_failure "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_ON_FAILURE'] || 'true'}"
