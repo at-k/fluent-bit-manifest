@@ -34,7 +34,7 @@ data:
       @type record_transformer
       enable_ruby true
       <record>
-        namespace_container_name ${"#{ENV['S3_ROOT']}"}.${record["kubernetes"]["namespace_name"]}.${record["kubernetes"]["container_name"]}
+        s3_log_path ${"#{ENV['S3_ROOT']}"}.${record["kubernetes"]["namespace_name"]}.${record["kubernetes"]["container_name"]}
       </record>
     </filter>
 
@@ -44,32 +44,39 @@ data:
     <match kubernetes.**>
       @type rewrite_tag_filter
       <rule>
-        key $['namespace_container_name']
+        key $['s3_log_path']
         pattern ^(.+)$
-        tag kube.$1
+        tag modified.$1
       </rule>
     </match>
 
-    # remove temporary metadata
-    <filter kube.**>
-      @type record_transformer
-      remove_keys namespace_container_name
+    <filter modified.**>
+      @type parser
+      format json
+      key_name log
+      reserve_data true
+      emit_invalid_record_to_error false
+      hash_value_field parsed
     </filter>
 
-    <match kube.**>
+    <match modified.**>
       @type copy
-      <store>
-        @type stdout
-        include_tag_key true
-      </store>
+      # <store>
+      #   @type stdout
+      #   include_tag_key true
+      # </store>
       <store>
         @type s3
+        @id out_s3
         @log_level info
         s3_bucket "#{ENV['S3_BUCKET_NAME']}"
         s3_region ap-northeast-1
 
-        s3_object_key_format %{path}cluster-log-%{index}.%{file_extension}
-        path ${tag[1]}/${tag[2]}/${tag[3]}/%Y/%m/%d/
+        s3_object_key_format %{path}%{time_slice}_%{hostname}_%{index}.%{file_extension}
+        path ${tag[1]}/${tag[2]}/${tag[3]}/
+
+        time_slice_format     %Y/%m/%d/%H
+        timezone              +00:00
 
         include_tag_key true
 
@@ -92,32 +99,32 @@ data:
           @type json
         </format>
       </store>
-      # <store>
-      #   @type elasticsearch
-      #   @id out_es
-      #   @log_level info
-      #   include_tag_key true
-      #   host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
-      #   port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
-      #   path "#{ENV['FLUENT_ELASTICSEARCH_PATH']}"
-      #   scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
-      #   ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
-      #   ssl_version "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERSION'] || 'TLSv1'}"
-      #   reload_connections "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_CONNECTIONS'] || 'false'}"
-      #   reconnect_on_error "#{ENV['FLUENT_ELASTICSEARCH_RECONNECT_ON_ERROR'] || 'true'}"
-      #   reload_on_failure "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_ON_FAILURE'] || 'true'}"
-      #   log_es_400_reason "#{ENV['FLUENT_ELASTICSEARCH_LOG_ES_400_REASON'] || 'false'}"
-      #   logstash_prefix "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX'] || 'logstash'}"
-      #   logstash_format "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_FORMAT'] || 'true'}"
-      #   index_name "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_INDEX_NAME'] || 'logstash'}"
-      #   type_name "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_TYPE_NAME'] || 'fluentd'}"
-      #   <buffer>
-      #     flush_thread_count "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_FLUSH_THREAD_COUNT'] || '8'}"
-      #     flush_interval "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_FLUSH_INTERVAL'] || '5s'}"
-      #     chunk_limit_size "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_CHUNK_LIMIT_SIZE'] || '2M'}"
-      #     queue_limit_length "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_QUEUE_LIMIT_LENGTH'] || '32'}"
-      #     retry_max_interval "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_RETRY_MAX_INTERVAL'] || '30'}"
-      #     retry_forever true
-      #   </buffer>
-      # </store>
+      <store>
+        @type elasticsearch
+        @id out_es
+        @log_level info
+        include_tag_key true
+        host "#{ENV['FLUENT_ELASTICSEARCH_HOST']}"
+        port "#{ENV['FLUENT_ELASTICSEARCH_PORT']}"
+        path "#{ENV['FLUENT_ELASTICSEARCH_PATH']}"
+        scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+        ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'] || 'true'}"
+        ssl_version "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERSION'] || 'TLSv1'}"
+        reload_connections "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_CONNECTIONS'] || 'false'}"
+        reconnect_on_error "#{ENV['FLUENT_ELASTICSEARCH_RECONNECT_ON_ERROR'] || 'true'}"
+        reload_on_failure "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_ON_FAILURE'] || 'true'}"
+        log_es_400_reason "#{ENV['FLUENT_ELASTICSEARCH_LOG_ES_400_REASON'] || 'false'}"
+        logstash_prefix "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX'] || 'logstash'}"
+        logstash_format "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_FORMAT'] || 'true'}"
+        index_name "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_INDEX_NAME'] || 'logstash'}"
+        type_name "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_TYPE_NAME'] || 'fluentd'}"
+        <buffer>
+          flush_thread_count "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_FLUSH_THREAD_COUNT'] || '8'}"
+          flush_interval "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_FLUSH_INTERVAL'] || '30s'}"
+          chunk_limit_size "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_CHUNK_LIMIT_SIZE'] || '10M'}"
+          queue_limit_length "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_QUEUE_LIMIT_LENGTH'] || '32'}"
+          retry_max_interval "#{ENV['FLUENT_ELASTICSEARCH_BUFFER_RETRY_MAX_INTERVAL'] || '30'}"
+          retry_forever true
+        </buffer>
+      </store>
     </match>
