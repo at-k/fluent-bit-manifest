@@ -5,14 +5,6 @@ image:
   # tag: v1.4-debian-s3
   pullPolicy: Always
 
-env:
-  # S3_BUCKET_NAME: "qa-infra"
-  S3_BUCKET_NAME: "ffl-logs-develop"
-  S3_ROOT: "integration-lending"
-  FLUENT_ELASTICSEARCH_HOST: "vpc-test-k8s-lkumm37uiiyl6dze5utpjnowee.ap-northeast-1.es.amazonaws.com"
-  FLUENT_ELASTICSEARCH_PORT: "443"
-  FLUENT_ELASTICSEARCH_SCHEME: "https"
-
 resources:
   limits:
     memory: 200Mi

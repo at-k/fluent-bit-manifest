@@ -1,2 +1,6 @@
-postfix:
-  myNetworkCIDR: 10.21.0.0/16
+env:
+  S3_BUCKET_NAME: "ffl-logs-develop"
+  S3_ROOT: "integration-lending"
+  FLUENT_ELASTICSEARCH_HOST: "vpc-staging-k8s-r2-s2i2gdjvme73knsqvn4d2ytjzy.ap-northeast-1.es.amazonaws.com"
+  FLUENT_ELASTICSEARCH_PORT: "443"
+  FLUENT_ELASTICSEARCH_SCHEME: "https"
