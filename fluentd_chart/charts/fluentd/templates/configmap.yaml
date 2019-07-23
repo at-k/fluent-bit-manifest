@@ -93,7 +93,7 @@ data:
           path /var/log/fluentd-buffers/s3.buffer
           timekey 3600
           timekey_use_utc true
-          chunk_limit_size 256m
+          chunk_limit_size 100m
         </buffer>
         <format>
           @type json
