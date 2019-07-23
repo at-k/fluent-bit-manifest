@@ -34,7 +34,7 @@ data:
       @type record_transformer
       enable_ruby true
       <record>
-        s3_log_path ${"#{ENV['S3_ROOT']}"}.${record["kubernetes"]["namespace_name"]}.${record["kubernetes"]["container_name"]}
+        s3_log_path ${"#{ENV['S3_ROOT']}" + "." + record["kubernetes"]["namespace_name"] + "." + record["kubernetes"]["container_name"] + "." + record["kubernetes"]["pod_name"]}
       </record>
     </filter>
 
@@ -69,10 +69,9 @@ data:
         @type s3
         @id out_s3
         @log_level info
-        s3_bucket "#{ENV['S3_BUCKET_NAME']}"
         s3_region ap-northeast-1
-
-        s3_object_key_format %{path}%{time_slice}_%{hostname}_%{index}.%{file_extension}
+        s3_bucket "#{ENV['S3_BUCKET_NAME']}"
+        s3_object_key_format %{path}%{time_slice}_${tag[4]}_%{index}.%{file_extension}
         path ${tag[1]}/${tag[2]}/${tag[3]}/
 
         time_slice_format     %Y/%m/%d/%H
