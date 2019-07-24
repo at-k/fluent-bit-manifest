@@ -89,6 +89,7 @@ data:
 
         time_slice_format     %Y/%m/%d/%H
         flush_interval        1m
+        slow_flush_log_threshold 25s
 
         <inject>
           time_key time
